@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CRUD! 😛</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../static/style.css" />
   </head>
   <body>
     <div class="container">
@@ -81,13 +81,13 @@
             </a>
           </li>
           <li>
-            <a href="./index.html">
+            <a href="./index">
               <span class="icon"><ion-icon name="home-outline"></ion-icon></span>
               <span class="title">학생 목록</span>
             </a>
           </li>
           <li>
-            <a href="./dept.html">
+            <a href="./dept">
               <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
               <span class="title">과정 목록</span>
             </a>
@@ -120,22 +120,7 @@
                 <th>담당 교사</th>
               </tr>
             </thead>
-            <tbody id="data">
-              <tr onclick="getSubject()">
-                <td>18990</td>
-                <td>주짓수 개발자 양성 과정</td>
-                <td>501호</td>
-                <td>22.06.15 ~ 22.12.22</td>
-                <td>이정수</td>
-              </tr>
-              <tr onclick="getSubject()">
-                <td>18330</td>
-                <td>React.js 개발자 양성 과정</td>
-                <td>502호</td>
-                <td>22.12.07 ~ 23.05.01</td>
-                <td>이예진</td>
-              </tr>
-            </tbody>
+            <tbody id="data"></tbody>
           </table>
           <!-- 페이징 처리하는 HTML -->
           <div class="pagination">
@@ -168,6 +153,7 @@
       $('.update-popup').css('display', 'none');
     });
     let list = document.querySelectorAll('.navigation li');
+
     function activeLink() {
       list.forEach((item) => {
         item.classList.remove('hovered');
@@ -185,5 +171,37 @@
     function addSubject() {
       $('.write-popup').css('display', 'block');
     }
+
+    function doSubmit() {
+      //AJAX 호출
+      $.ajax({
+        url: 'api/v1/dept',
+        contentType: 'application/json', //서버에 json타입으로 보낼 예정(요청)
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+          console.log(response);
+          var tbody = '';
+          for (var i in response) {
+            tbody +=
+              "<tr onclick='getSubject(" +
+              response[i].deptNum +
+              ")'><td>" +
+              response[i].deptNum +
+              '</td><td>' +
+              response[i].deptName +
+              '</td><td>' +
+              response[i].deptClass +
+              '</td><td>' +
+              response[i].deptDate +
+              '</td><td>' +
+              response[i].deptTeacher +
+              '</td></tr>';
+          }
+          $('#data').append(tbody);
+        },
+      });
+    }
+    doSubmit();
   </script>
 </html>
