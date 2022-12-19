@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CRUD! 😛</title>
-    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <div class="container">
@@ -14,28 +14,28 @@
         <div class="editor">
           <div class="input-box">
             <label>과정 번호 : </label>
-            <input type="number" placeholder="과정번호를 입력하세요..." />
+            <input id="insertDeptNum" type="number" placeholder="과정번호를 입력하세요..." />
           </div>
           <div class="input-box">
             <label>과정 명 : </label>
-            <input type="text" placeholder="과정명을 입력하세요..." />
+            <input id="insertDeptName" type="text" placeholder="과정명을 입력하세요..." />
           </div>
           <div class="input-box">
             <label>과정 호실 : </label>
-            <input type="text" placeholder="과정호실을 입력하세요..." />
+            <input id="insertDeptClass" type="text" placeholder="과정호실을 입력하세요..." />
           </div>
           <div class="input-box">
             <label>과정 기간 : </label>
-            <input type="date" value="2022-08-01" placeholder="과정 시작 날짜입력..." />
-            <input type="date" value="2023-02-06" placeholder="과정 종료 날짜입력..." />
+            <input id="insertStartDate" type="date" value="2022-08-01" placeholder="과정 시작 날짜입력..." />
+            <input id="insertEndDate" type="date" value="2023-02-06" placeholder="과정 종료 날짜입력..." />
           </div>
           <div class="input-box">
             <label>담당 교사 : </label>
-            <input type="text" placeholder="교사이름 입력하세요..." />
+            <input id="insertDeptTeacher" type="text" placeholder="교사이름 입력하세요..." />
           </div>
           <div class="btn-area">
             <a href="#" class="btn-cancel" onclick="">취소</a>
-            <a href="#" class="btn-success" onclick="">등록</a>
+            <a href="#" class="btn-success" onclick="doInsert()">등록</a>
           </div>
         </div>
       </div>
@@ -47,28 +47,28 @@
           </div>
           <div class="input-box">
             <label>과정 번호 : </label>
-            <input type="number" value="9983" placeholder="과정번호를 입력하세요..." />
+            <input id="updateDeptNum" type="number" placeholder="과정번호를 입력하세요..." />
           </div>
           <div class="input-box">
             <label>과정 명 : </label>
-            <input type="text" value="웹개발자 양성과정" placeholder="과정명을 입력하세요..." />
+            <input id="updateDeptName" type="text" placeholder="과정명을 입력하세요..." />
           </div>
           <div class="input-box">
             <label>과정 호실 : </label>
-            <input type="text" value="501호" placeholder="과정호실을 입력하세요..." />
+            <input id="updateDeptClass" type="text" placeholder="과정호실을 입력하세요..." />
           </div>
           <div class="input-box">
             <label>과정 기간 : </label>
-            <input type="date" value="2022-08-02" placeholder="과정 시작 날짜입력..." />
-            <input type="date" value="2023-02-06" placeholder="과정 종료 날짜입력..." />
+            <input id="updateStartDate" type="date" value="2022-08-02" placeholder="과정 시작 날짜입력..." />
+            <input id="updateEndDate" type="date" value="2023-02-06" placeholder="과정 종료 날짜입력..." />
           </div>
           <div class="input-box">
             <label>담당 교사 : </label>
-            <input type="text" value="현상원 명예교수" placeholder="교사이름 입력하세요..." />
+            <input id="updateDeptTeacher" type="text" placeholder="교사이름 입력하세요..." />
           </div>
           <div class="btn-area">
-            <a href="#" class="btn-update" onclick="">수정</a>
-            <a href="#" class="btn-delete" onclick="">삭제</a>
+            <a href="#" class="btn-update" onclick="doUpdate()">수정</a>
+            <a href="#" class="btn-delete" onclick="doDelete()">삭제</a>
           </div>
         </div>
       </div>
@@ -172,8 +172,8 @@
       $('.write-popup').css('display', 'block');
     }
 
+    // 과정 목록
     function doSubmit() {
-      //AJAX 호출
       $.ajax({
         url: 'api/v1/dept',
         contentType: 'application/json', //서버에 json타입으로 보낼 예정(요청)
@@ -203,5 +203,105 @@
       });
     }
     doSubmit();
+
+    //과정목록수정
+    function doUpdate() {
+      var deptNum = $('#updateDeptNum').val();
+      var deptName = $('#updateDeptName').val();
+      var deptClass = $('#updateDeptClass').val();
+      var deptStartDate = $('#updateStartDate').val();
+      var deptEndDate = $('#updateEndDate').val();
+      var deptTeacher = $('#updateDeptTeacher').val();
+
+      var jsonData = {
+        deptNum: deptNum,
+        deptName: deptName,
+        deptClass: deptClass,
+        deptDate: deptStartDate + '~' + deptEndDate,
+        deptTeacher: deptTeacher,
+      };
+      $.ajax({
+        url: 'api/v1/dept/modify',
+        type: 'PATCH',
+        contentType: 'application/json', //서버에 json타입으로 보낼 예정(요청)
+        data: JSON.stringify(jsonData),
+        dataType: 'json',
+        success: function (response) {
+          alert('수정완료');
+          location.reload(); //강제새로고침
+        },
+      });
+    }
+    //학생목록 삭제
+    function doDelete() {
+      var deptNum = $('#updateDeptNum').val();
+      if (deptNum == '') {
+        alert('학생번호를 입력해주세요');
+        $('#updateDeptNum').focus();
+        return false;
+      }
+      $.ajax({
+        url: 'api/v1/dept/' + deptNum,
+        type: 'DELETE',
+        dataType: 'json',
+        success: function (response) {
+          console.log(response);
+          alert('삭제완료');
+          location.reload(); //강제새로고침
+        },
+      });
+    }
+    //학생추가
+    function doInsert() {
+      var deptNum = $('#insertDeptNum').val();
+      var deptName = $('#insertDeptName').val();
+      var deptClass = $('#insertDeptClass').val();
+      var deptStartDate = $('#insertStartDate').val();
+      var deptEndDate = $('#insertEndDate').val();
+      var deptTeacher = $('#insertDeptTeacher').val();
+
+      var jsonData = {
+        deptNum: deptNum,
+        deptName: deptName,
+        deptClass: deptClass,
+        deptDate: deptStartDate + '~' + deptEndDate,
+        deptTeacher: deptTeacher,
+      };
+
+      $.ajax({
+        url: 'api/v1/dept/add',
+        contentType: 'application/json', //서버에 json타입으로 보낼 예정(요청)
+        type: 'POST',
+        data: JSON.stringify(jsonData),
+        dataType: 'json',
+        success: function (response) {
+          console.log(response);
+          alert('추가완료');
+          location.reload(); //강제새로고침
+        },
+      });
+    }
+
+    // 상세정보 불러오기
+    function getSubject(deptNum) {
+      $('.update-popup').css('display', 'block');
+      $.ajax({
+        url: 'api/v1/dept/' + deptNum,
+        contentType: 'application/json',
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+          deptdate = response.deptDate.split('~');
+          deptStartDate = deptdate[0];
+          deptEndDate = deptdate[1];
+          $('#updateDeptNum').val(response.deptNum);
+          $('#updateDeptName').val(response.deptName);
+          $('#updateDeptClass').val(response.deptClass);
+          $('#updateStartDate').val(deptStartDate);
+          $('#updateEndDate').val(deptEndDate);
+          $('#updateDeptTeacher').val(response.deptTeacher);
+        },
+      });
+    }
   </script>
 </html>
