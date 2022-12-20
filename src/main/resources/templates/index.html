@@ -25,8 +25,8 @@
             <input id="insertStudentPhone" type="text" placeholder=" - 를 제거하고 입력하세요." />
           </div>
           <div class="input-box">
-            <label>과정번호 : </label>
-            <input id="insertDeptNum" type="number" placeholder="과정번호를 입력하세요." />
+            <label>과정명: </label>
+            <select class="selectDeptName" name="insertDeptName" id="insertDeptName"></select>
           </div>
           <div class="input-box">
             <label>주소 </label>
@@ -62,12 +62,8 @@
             <input id="updateStudentPhone" type="text" value="" placeholder=" - 를 제거하고 입력하세요." />
           </div>
           <div class="input-box">
-            <label>과정 번호 : </label>
-            <input id="updateDeptNum" type="number" value="" />
-          </div>
-          <div class="input-box">
             <label>과정명 : </label>
-            <input id="updateDeptName" type="text" value="" disabled="disabled" />
+            <select class="selectDeptName" name="updateDeptName" id="updateDeptName"></select>
           </div>
           <div class="input-box">
             <label>주소 </label>
@@ -181,6 +177,7 @@
   <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script>
     $('#empAdd').click(function () {
+      selectDept();
       $('.write-popup').css('display', 'block');
     });
     $('.btn-cancel').click(function () {
@@ -200,6 +197,25 @@
       item.addEventListener('mouseover', activeLink);
     });
 
+    // 과정선택하기
+    function selectDept() {
+      $.ajax({
+        url: 'api/v1/index/select',
+        contentType: 'application/json',
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+          console.log(response);
+          var deptOption = '';
+          var getNum = 0;
+          for (var i in response) {
+            deptOption += '<option value = "' + response[i].deptNum + '">' + response[i].deptName + '</option>';
+          }
+          $('.selectDeptName').append(deptOption);
+        },
+      });
+    }
+
     // 학생상세정보 불러오기
     function getData(studentNum) {
       $('.update-popup').css('display', 'block');
@@ -216,6 +232,7 @@
           $('#updateStudentAddr').val(response.studentAddr);
           $('#updateDeptName').val(response.dept.deptName);
           $('#updateDeptNum').val(response.dept.deptNum);
+          selectDept();
         },
       });
     }
@@ -232,7 +249,13 @@
         success: function (response) {
           console.log(response);
           var tbody = '';
+          var studentPhoneNum = '';
           for (var i in response) {
+            PhoneNum = response[i].studentPhone;
+            //하이픈 넣어주기
+            PhoneNum = PhoneNum.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/, '$1-$2-$3');
+            // 뒷자리 바꾸기
+            studentPhoneNum = PhoneNum.substring(0, PhoneNum.length - 4) + PhoneNum.substr(-4, 4).replace(/[0-9]/g, '*');
             tbody +=
               "<tr onclick='getData(" +
               response[i].studentNum +
@@ -243,7 +266,7 @@
               '</td><td>' +
               response[i].studentAge +
               '</td><td>' +
-              response[i].studentPhone +
+              studentPhoneNum +
               '</td><td>' +
               response[i].studentAddr +
               '</td><td>' +
@@ -268,7 +291,7 @@
       var studentAge = $('#updateStudentAge').val();
       var studentPhone = $('#updateStudentPhone').val();
       var studentAddr = $('#updateStudentAddr').val();
-      var deptNum = $('#updateDeptNum').val();
+      var deptNum = $('#updateDeptName').val();
 
       var jsonData = {
         studentNum: studentNum,
@@ -317,7 +340,7 @@
       var studentPhone = $('#insertStudentPhone').val();
       var studentName = $('#insertStudentName').val();
       var studentAddr = $('#insertStudentAddr').val();
-      var deptNum = $('#insertDeptNum').val();
+      var deptNum = $('#insertDeptName').val();
       var jsonData = {
         studentAge: studentAge,
         studentName: studentName,

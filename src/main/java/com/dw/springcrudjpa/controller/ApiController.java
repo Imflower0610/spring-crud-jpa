@@ -41,6 +41,13 @@ public class ApiController {
 		student = studentRepo.save(student);
 		return student;
 	}
+	//student 수정 창에서 과정선택하기
+	@GetMapping("api/v1/index/select")
+	public List<Dept> callCrudDept() {
+		return deptRepo.findAll();
+	}
+
+
 	// student 추가
 	@PostMapping("api/v1/index/add")
 	public Student callSaveStudent(@RequestBody Student student) {
